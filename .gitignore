@@ -1,0 +1,4 @@
+target/
+appointments.db
+*.class
+.DS_Store

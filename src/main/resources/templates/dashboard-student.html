@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>My Bookings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+
+        th {
+            background: #008CBA;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>My Booked Appointments</h1>
+    <a th:href="@{/appointments/calendar}">← Back to Calendar</a> | <form th:action="@{/logout}" method="post"
+        style="display:inline;">
+        <button type="submit"
+            style="background:none; border:none; color:blue; cursor:pointer; text-decoration:underline; padding:0;">
+            Logout
+        </button>
+    </form>
+
+    <br /><br />
+    <table>
+        <tr>
+            <th>Instructor</th>
+            <th>Time</th>
+        </tr>
+        <tr th:each="b : ${bookings}">
+            <td th:text="${b.instructorUsername}"></td>
+            <td th:text="${b.slotTime}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(bookings)}">
+            <td colspan="2">No bookings yet.</td>
+        </tr>
+    </table>
+</body>
+
+</html>

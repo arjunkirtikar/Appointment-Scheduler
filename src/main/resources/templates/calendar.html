@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <title>Appointment Scheduler</title>
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        #calendar {
+            margin: 20px 0;
+        }
+
+        .panel {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        input,
+        select {
+            padding: 7px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button,
+        .btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .btn-blue {
+            background: #008CBA;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .logout-form {
+            display: inline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>Appointment Scheduler</h1>
+        <div>
+            Logged in as: <strong sec:authentication="name"></strong> |
+            <form th:action="@{/logout}" method="post" class="logout-form">
+                <button type="submit"
+                    style="background:none;border:none;color:blue;cursor:pointer;text-decoration:underline;padding:0;">Logout</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FullCalendar Container -->
+    <div id="calendar"></div>
+
+    <!-- Instructor: Bulk Create Slots -->
+    <div sec:authorize="hasRole('INSTRUCTOR')" class="panel">
+        <h3>Create Multiple Appointment Slots</h3>
+        <form th:action="@{/appointments/create-bulk}" method="post">
+            <label>Start Date & Time</label>
+            <input type="datetime-local" name="startTime" required />
+            <label>Slot Duration (minutes)</label>
+            <input type="number" name="durationMinutes" value="15" min="5" required />
+            <label>Break Between Slots (minutes)</label>
+            <input type="number" name="breakMinutes" value="0" min="0" required />
+            <label>Number of Slots to Create</label>
+            <input type="number" name="numberOfSlots" value="4" min="1" required />
+            <label>Group Appointment?</label>
+            <select name="isGroup">
+                <option value="false">No — Individual</option>
+                <option value="true">Yes — Group</option>
+            </select>
+            <label>Group Capacity (if group)</label>
+            <input type="number" name="groupCapacity" value="1" min="1" />
+            <br /><br />
+            <button type="submit">Generate Slots</button>
+        </form>
+        <br />
+        <a th:href="@{/appointments/my-slots}" class="btn btn-blue" style="text-decoration:none; padding:8px 16px;">View
+            My Slots & Bookings</a>
+    </div>
+
+    <!-- Red error message if not in a group -->
+    <div th:if="${groupError != null}" style="background:#ffebee; color:#c62828; border:1px solid #ef9a9a;
+       padding:12px; border-radius:6px; margin-bottom:12px;">
+        <span th:text="${groupError}"></span>
+        <br /><br />
+        <strong>Options:</strong>
+        <ul>
+            <li>Create a new group using the form below</li>
+            <li>Join an existing group from the groups table</li>
+        </ul>
+    </div>
+
+
+    <!-- Student: Available Slots Table -->
+    <div sec:authorize="hasRole('STUDENT')" class="panel">
+        <h3>Available Slots</h3>
+        <a th:href="@{/appointments/my-bookings}" class="btn btn-blue"
+            style="text-decoration:none; padding:8px 16px;">My Bookings</a>
+        <br /><br />
+        <table>
+            <tr>
+                <th>Instructor</th>
+                <th>Date & Time</th>
+                <th>Duration</th>
+                <th>Type</th>
+                <th>Action</th>
+            </tr>
+            <tr th:each="slot : ${slots}">
+                <td th:text="${slot.instructorUsername}"></td>
+                <td th:text="${slot.slotTime}"></td>
+                <td th:text="${slot.durationMinutes} + ' min'"></td>
+                <td th:text="${slot.groupAppointment ? 'Group' : 'Individual'}"></td>
+                <td>
+                    <form th:action="@{/appointments/book/{id}(id=${slot.id})}" method="post">
+                        <button type="submit">Book</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(slots)}">
+                <td colspan="5">No available slots.</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Student: Group Management -->
+    <div sec:authorize="hasRole('STUDENT')" class="panel">
+        <h3>Groups</h3>
+        <form th:action="@{/appointments/groups/create}" method="post" style="display:flex; gap:10px;">
+            <input type="text" name="groupName" placeholder="New group name" style="width:auto; flex:1;" required />
+            <button type="submit">Create Group</button>
+        </form>
+        <br />
+        <table>
+            <tr>
+                <th>Group Name</th>
+                <th>Created By</th>
+                <th>Members</th>
+                <th>Action</th>
+            </tr>
+            <tr th:each="group : ${groups}">
+                <td th:text="${group.groupName}"></td>
+                <td th:text="${group.createdByUsername}"></td>
+                <td th:text="${group.memberUsernames}"></td>
+                <td>
+                    <!-- Show Leave if already a member, Join if not -->
+                    <div th:if="${#lists.contains(group.memberList, #authentication.name)}">
+                        <form th:action="@{/appointments/groups/leave/{id}(id=${group.id})}" method="post">
+                            <button type="submit"
+                                style="background:#e53935; color:white; border:none; padding:6px 12px; cursor:pointer; border-radius:4px;">
+                                Leave
+                            </button>
+                        </form>
+                    </div>
+                    <div th:unless="${#lists.contains(group.memberList, #authentication.name)}">
+                        <form th:action="@{/appointments/groups/join/{id}(id=${group.id})}" method="post">
+                            <button type="submit">Join</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(groups)}">
+                <td colspan="4">No groups yet.</td>
+            </tr>
+        </table>
+
+    </div>
+
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+    <script th:inline="javascript">
+        // Pull appointments from Thymeleaf into JS
+        const appointments = /*[[${allAppointments}]]*/[];
+
+        const events = appointments.map(appt => ({
+            title: (appt.groupAppointment ? '[Group] ' : '') +
+                'Prof: ' + appt.instructorUsername +
+                (appt.booked ? ' ✓ Booked' : ' — Open'),
+            start: appt.slotTime,
+            color: appt.booked ? '#e57373' : '#4CAF50'
+        }));
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const calendarEl = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                navLinks: true,
+                events: events,
+                height: 500
+            });
+            calendar.render();
+        });
+    </script>
+</body>
+
+</html>

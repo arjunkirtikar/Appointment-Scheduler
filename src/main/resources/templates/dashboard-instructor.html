@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>My Slots</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 900px; margin: 40px auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { border: 1px solid #ddd; padding: 10px; }
+  th { background: #4CAF50; color: white; }
+  .booked { background: #fff3f3; }
+  .open { background: #f3fff3; }
+</style>
+</head>
+<body>
+<h1>My Appointment Slots</h1>
+<a th:href="@{/appointments/calendar}">← Back to Calendar</a> |
+<form th:action="@{/logout}" method="post" style="display:inline;">
+    <button type="submit" style="background:none;border:none;color:blue;cursor:pointer;text-decoration:underline;padding:0;">Logout</button>
+</form>
+<br/><br/>
+
+<table>
+    <tr>
+        <th>Date & Time</th>
+        <th>Duration</th>
+        <th>Type</th>
+        <th>Status</th>
+        <th>Booked By</th>
+    </tr>
+    <tr th:each="s : ${slots}"
+        th:classappend="${s.booked} ? 'booked' : 'open'">
+        <td th:text="${s.slotTime}"></td>
+        <td th:text="${s.durationMinutes} + ' min'"></td>
+        <td th:text="${s.groupAppointment ? 'Group' : 'Individual'}"></td>
+        <td th:text="${s.booked ? 'Booked' : 'Open'}"></td>
+        <td th:text="${s.studentUsername != null ? s.studentUsername : '—'}"></td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(slots)}">
+        <td colspan="5">No slots created yet.</td>
+    </tr>
+</table>
+</body>
+</html>
