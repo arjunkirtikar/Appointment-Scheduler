@@ -1,42 +1,161 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><title>My Slots</title>
-<style>
-  body { font-family: Arial, sans-serif; max-width: 900px; margin: 40px auto; }
-  table { width: 100%; border-collapse: collapse; }
-  th, td { border: 1px solid #ddd; padding: 10px; }
-  th { background: #4CAF50; color: white; }
-  .booked { background: #fff3f3; }
-  .open { background: #f3fff3; }
-</style>
-</head>
-<body>
-<h1>My Appointment Slots</h1>
-<a th:href="@{/appointments/calendar}">← Back to Calendar</a> |
-<form th:action="@{/logout}" method="post" style="display:inline;">
-    <button type="submit" style="background:none;border:none;color:blue;cursor:pointer;text-decoration:underline;padding:0;">Logout</button>
-</form>
-<br/><br/>
 
-<table>
-    <tr>
-        <th>Date & Time</th>
-        <th>Duration</th>
-        <th>Type</th>
-        <th>Status</th>
-        <th>Booked By</th>
-    </tr>
-    <tr th:each="s : ${slots}"
-        th:classappend="${s.booked} ? 'booked' : 'open'">
-        <td th:text="${s.slotTime}"></td>
-        <td th:text="${s.durationMinutes} + ' min'"></td>
-        <td th:text="${s.groupAppointment ? 'Group' : 'Individual'}"></td>
-        <td th:text="${s.booked ? 'Booked' : 'Open'}"></td>
-        <td th:text="${s.studentUsername != null ? s.studentUsername : '—'}"></td>
-    </tr>
-    <tr th:if="${#lists.isEmpty(slots)}">
-        <td colspan="5">No slots created yet.</td>
-    </tr>
-</table>
+<head>
+    <title>My Slots</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background: #4CAF50;
+            color: white;
+        }
+
+        tr.booked {
+            background: #fff3f3;
+        }
+
+        tr.open {
+            background: #f3fff3;
+        }
+
+        .badge-group {
+            background: #1565C0;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .badge-individual {
+            background: #558B2F;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .badge-open {
+            background: #4CAF50;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .badge-booked {
+            background: #e53935;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        a.group-link {
+            color: #1565C0;
+            font-weight: bold;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>My Appointment Slots</h1>
+        <div>
+            <a th:href="@{/appointments/calendar}">← Back to Calendar</a> |
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit"
+                    style="background:none;border:none;color:blue;cursor:pointer;text-decoration:underline;padding:0;">
+                    Logout
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Summary counts -->
+    <p>
+        Total Slots: <strong th:text="${slots.size()}"></strong> |
+        Booked: <strong th:text="${#lists.size(slots.?[booked == true])}"></strong> |
+        Open: <strong th:text="${#lists.size(slots.?[booked == false])}"></strong>
+    </p>
+
+    <table>
+        <tr>
+            <th>Date & Time</th>
+            <th>Duration</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Booked By</th>
+            <th>Group</th>
+        </tr>
+        <tr th:each="s : ${slots}" th:classappend="${s.booked} ? 'booked' : 'open'">
+
+            <!-- Date & Time -->
+            <td th:text="${s.slotTime}"></td>
+
+            <!-- Duration -->
+            <td th:text="${s.durationMinutes} + ' min'"></td>
+
+            <!-- Type badge -->
+            <td>
+                <span th:if="${s.groupAppointment}" class="badge-group">Group</span>
+                <span th:unless="${s.groupAppointment}" class="badge-individual">Individual</span>
+            </td>
+
+            <!-- Status badge -->
+            <td>
+                <span th:if="${s.booked}" class="badge-booked">Booked</span>
+                <span th:unless="${s.booked}" class="badge-open">Open</span>
+            </td>
+
+            <!-- Who booked it -->
+            <td>
+                <span th:if="${s.studentUsername != null}" th:text="${s.studentUsername}"></span>
+                <span th:unless="${s.studentUsername != null}" style="color:#aaa;">—</span>
+            </td>
+
+            <!-- Group info — clickable link if it's a group slot -->
+            <td>
+                <span th:if="${s.groupAppointment and s.groupId != null}">
+                    <a th:href="@{/appointments/groups/{id}(id=${s.groupId})}" class="group-link">
+                        View Group
+                    </a>
+                </span>
+                <span th:unless="${s.groupAppointment}" style="color:#aaa;">—</span>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(slots)}">
+            <td colspan="6" style="text-align:center; color:#aaa;">No slots created yet.</td>
+        </tr>
+    </table>
+
 </body>
+
 </html>

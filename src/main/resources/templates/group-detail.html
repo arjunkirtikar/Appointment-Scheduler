@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Group Details</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; }
+  .card { background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 24px; }
+  h2 { color: #1565C0; }
+  ul { list-style: none; padding: 0; }
+  ul li { background: white; border: 1px solid #ddd; padding: 10px 16px; margin: 6px 0; border-radius: 4px; }
+  ul li::before { content: "👤 "; }
+  .back { margin-bottom: 20px; display: inline-block; color: #1565C0; }
+</style>
+</head>
+<body>
+
+<a th:href="@{/appointments/my-slots}" class="back">← Back to My Slots</a>
+
+<div class="card">
+    <h2 th:text="${group.groupName}"></h2>
+    <p>Created by: <strong th:text="${group.createdByUsername}"></strong></p>
+    <p>Total Members: <strong th:text="${group.memberList.size()}"></strong></p>
+
+    <h3>Members</h3>
+    <ul>
+        <li th:each="member : ${group.memberList}" th:text="${member}"></li>
+        <li th:if="${#lists.isEmpty(group.memberList)}" style="color:#aaa;">No members yet.</li>
+    </ul>
+</div>
+
+</body>
+</html>

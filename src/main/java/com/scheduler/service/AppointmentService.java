@@ -127,4 +127,9 @@ public class AppointmentService {
         studentGroupRepository.save(group);
     }
 
+    public StudentGroup getGroupById(Long id) {
+        return studentGroupRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Group not found"));
+    }    
+
 }

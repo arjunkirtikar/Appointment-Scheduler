@@ -109,4 +109,10 @@ public class AppointmentController {
         return "redirect:/appointments/calendar";
     }
 
+    @GetMapping("/groups/{id}")
+    public String viewGroup(@PathVariable Long id, Model model) {
+        model.addAttribute("group", appointmentService.getGroupById(id));
+        return "group-detail";
+    }
+
 }
