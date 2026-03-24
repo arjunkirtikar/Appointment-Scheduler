@@ -11,7 +11,7 @@
 
     <!-- Navbar -->
     <nav class="navbar">
-        <span class="navbar-brand">📅 Scheduler</span>
+        <span class="navbar-brand">Scheduler</span>
         <div class="navbar-links">
             <a th:href="@{/appointments/calendar}">Calendar</a>
             <a th:href="@{/appointments/groups}">Groups</a>
@@ -28,10 +28,10 @@
 
         <!-- Alerts -->
         <div th:if="${slotError != null}" class="alert alert-error">
-            ⚠️ <span th:text="${slotError}"></span>
+            <span th:text="${slotError}"></span>
         </div>
         <div th:if="${groupError != null}" class="alert alert-error">
-            ⚠️ <span th:text="${groupError}"></span>
+            <span th:text="${groupError}"></span>
             — <a th:href="@{/appointments/groups}">Join a group here</a>
         </div>
 
@@ -89,7 +89,7 @@
     <div class="modal-overlay" id="bookModal">
         <div class="modal">
             <button class="modal-close" onclick="closeBookModal()">✕</button>
-            <h3>📋 Confirm Booking</h3>
+            <h3>Confirm Booking</h3>
             <div class="slot-detail" id="bookSlotDetail"></div>
             <form id="bookForm" method="post">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
@@ -105,7 +105,7 @@
     <div class="modal-overlay" id="createModal" sec:authorize="hasRole('INSTRUCTOR')">
         <div class="modal">
             <button class="modal-close" onclick="closeCreateModal()">✕</button>
-            <h3>➕ Create Appointment Slots</h3>
+            <h3>Create Appointment Slots</h3>
             <form th:action="@{/appointments/create-recurring}" method="post">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
@@ -176,7 +176,7 @@
 
         const events = appointments.map(appt => ({
             id: appt.id,
-            title: (appt.groupAppointment ? '👥 ' : '👤 ') +
+            title: (appt.groupAppointment ? '[Group ]' : '[Individual ]') +
                 (appt.booked ? 'Booked' : 'Open'),
             start: appt.slotTime,
             backgroundColor: appt.booked ? '#ef4444' : '#10b981',
@@ -214,16 +214,16 @@
                 eventClick: function (info) {
                     const p = info.event.extendedProps;
                     if (userRole) {
-                        let msg = `📅 ${info.event.startStr}\n⏱ Duration: ${p.duration} min\n`;
-                        msg += `📌 ${p.isGroup ? 'Group' : 'Individual'}\n`;
+                        let msg = `Time: ${info.event.startStr}\n⏱ Duration: ${p.duration} min\n`;
+                        msg += `Type: ${p.isGroup ? 'Group' : 'Individual'}\n`;
                         msg += `Status: ${p.booked ? 'Booked' : 'Open'}\n`;
-                        if (p.booked && p.student) msg += `👤 Booked By: ${p.student}\n`;
+                        if (p.booked && p.student) msg += `Booked By: ${p.student}\n`;
                         if (p.isGroup && p.groupId) {
                             if (confirm(msg + '\nView group details?'))
                                 window.location.href = `/appointments/groups/${p.groupId}`;
                         } else { alert(msg); }
                     } else {
-                        if (p.booked) { alert('⚠️ This slot is already booked.'); return; }
+                        if (p.booked) { alert('This slot is already booked.'); return; }
                         openBookModal(p.appointmentId, info.event.startStr,
                             p.duration, p.instructor, p.isGroup);
                     }
@@ -234,10 +234,10 @@
 
         function openBookModal(id, time, duration, instructor, isGroup) {
             document.getElementById('bookSlotDetail').innerHTML =
-                `<p>📅 <strong>Time:</strong> ${time}</p>
-             <p>👨‍🏫 <strong>Instructor:</strong> ${instructor}</p>
-             <p>⏱ <strong>Duration:</strong> ${duration} min</p>
-             <p>📌 <strong>Type:</strong> ${isGroup ? 'Group' : 'Individual'}</p>`;
+                `<p><strong>Time:</strong> ${time}</p>
+             <p><strong>Instructor:</strong> ${instructor}</p>
+             <p><strong>Duration:</strong> ${duration} min</p>
+             <p><strong>Type:</strong> ${isGroup ? 'Group' : 'Individual'}</p>`;
             document.getElementById('bookForm').action = `/appointments/book/${id}`;
             document.getElementById('bookModal').classList.add('active');
         }

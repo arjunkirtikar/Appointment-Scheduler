@@ -9,11 +9,11 @@
 <body>
     <div class="login-wrap">
         <div class="login-card">
-            <h1>📅 Scheduler</h1>
+            <h1>Scheduler</h1>
             <p>Sign in to manage your appointments</p>
 
             <div th:if="${param.error}" class="alert alert-error" style="margin-bottom:20px;">
-                ⚠️ Invalid username or password.
+                Invalid username or password.
             </div>
 
             <form th:action="@{/login}" method="post">
@@ -32,8 +32,8 @@
 
             <div class="login-hint">
                 <strong style="color:#94a3b8;">Demo Credentials</strong><br />
-                🎓 Student: <code>student1</code> / <code>pass</code><br />
-                👨‍🏫 Instructor: <code>prof1</code> / <code>pass</code>
+                Student: <code>student1</code> / <code>pass</code><br />
+                Instructor: <code>prof1</code> / <code>pass</code>
             </div>
         </div>
     </div>

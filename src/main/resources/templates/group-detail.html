@@ -8,7 +8,7 @@
 
 <body>
   <nav class="navbar">
-    <span class="navbar-brand">📅 Scheduler</span>
+    <span class="navbar-brand">Scheduler</span>
     <div class="navbar-links">
       <a th:href="@{/appointments/calendar}">Calendar</a>
       <a th:href="@{/appointments/groups}">Groups</a>
@@ -24,17 +24,11 @@
       Slots</a>
 
     <div class="card">
-      <div style="display:flex; align-items:center; gap:16px; margin-bottom:20px;">
-        <div style="background:#1e3a5f; border-radius:50%; width:56px; height:56px;
-                        display:flex; align-items:center; justify-content:center; font-size:24px;">
-          👥
-        </div>
-        <div>
-          <h2 style="color:#60a5fa; font-size:22px;" th:text="${group.groupName}"></h2>
-          <p style="color:#64748b; font-size:13px;">
-            Created by <strong th:text="${group.createdByUsername}"></strong>
-          </p>
-        </div>
+      <div style="margin-bottom:20px;">
+        <h2 style="color:#60a5fa; font-size:22px;" th:text="${group.groupName}"></h2>
+        <p style="color:#64748b; font-size:13px; margin-top:6px;">
+          Created by <strong th:text="${group.createdByUsername}"></strong>
+        </p>
       </div>
 
       <div class="stats-row" style="margin-bottom:20px;">
@@ -47,7 +41,7 @@
       <h3>Members</h3>
       <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:12px;">
         <span th:each="member : ${group.memberList}" class="member-tag">
-          👤 <span th:text="${member}"></span>
+          <span th:text="${member}"></span>
         </span>
         <span th:if="${#lists.isEmpty(group.memberList)}" style="color:#475569; font-size:14px;">No members yet.</span>
       </div>
