@@ -2,7 +2,6 @@ package com.scheduler.domain;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "appointments")
@@ -19,8 +18,8 @@ public class Appointment {
     private int durationMinutes;
     private boolean isGroupAppointment;
     private int groupCapacity;
-
     private Long groupId;
+    private int cancellationDeadlineHours;
 
     public Appointment() {}
 
@@ -50,4 +49,7 @@ public class Appointment {
 
     public Long getGroupId() { return groupId; }
     public void setGroupId(Long groupId) { this.groupId = groupId; }
+
+    public int getCancellationDeadlineHours() { return cancellationDeadlineHours; }
+    public void setCancellationDeadlineHours(int h) { this.cancellationDeadlineHours = h; }
 }

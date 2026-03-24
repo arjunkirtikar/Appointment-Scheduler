@@ -65,7 +65,8 @@ class AppointmentServiceTest {
             "prof1",
             LocalDateTime.now(),
             15, 5, 4,
-            false, 1
+            false, 1,
+            0, 60
         );
         verify(appointmentRepository, times(4)).save(any(Appointment.class));
     }
@@ -74,7 +75,7 @@ class AppointmentServiceTest {
     @Test
     void createBulkSlots_shouldSpaceSlotsByDurationPlusBreak() {
         LocalDateTime start = LocalDateTime.of(2026, 3, 10, 9, 0);
-        appointmentService.createBulkSlots("prof1", start, 15, 5, 2, false, 1);
+        appointmentService.createBulkSlots("prof1", start, 15, 5, 2, false, 1, 0, 60);
 
         // Capture saved appointments
         var captor = org.mockito.ArgumentCaptor.forClass(Appointment.class);

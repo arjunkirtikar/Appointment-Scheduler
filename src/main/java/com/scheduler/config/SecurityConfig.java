@@ -14,16 +14,14 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-// Needs to mark this class as a source of Spring beam def
-// Replaces old XML config files
-// Activates Spring Security
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/login", "/css/**").permitAll()
-                .requestMatchers("/appointments/create").hasRole("INSTRUCTOR")
+                .requestMatchers("/appointments/create-bulk").hasRole("INSTRUCTOR")
+                // ← ADD THIS LINE
+                .requestMatchers("/appointments/groups/create").hasRole("INSTRUCTOR")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
@@ -32,7 +30,6 @@ public class SecurityConfig {
                 .permitAll()
             )
             .logout(logout -> logout
-                .logoutUrl("/logout")
                 .logoutSuccessUrl("/login")
                 .permitAll()
             );

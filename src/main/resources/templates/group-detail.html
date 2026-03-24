@@ -1,31 +1,58 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><title>Group Details</title>
-<style>
-  body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; }
-  .card { background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 24px; }
-  h2 { color: #1565C0; }
-  ul { list-style: none; padding: 0; }
-  ul li { background: white; border: 1px solid #ddd; padding: 10px 16px; margin: 6px 0; border-radius: 4px; }
-  ul li::before { content: "👤 "; }
-  .back { margin-bottom: 20px; display: inline-block; color: #1565C0; }
-</style>
+
+<head>
+  <title>Group Detail — Scheduler</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}" />
 </head>
+
 <body>
+  <nav class="navbar">
+    <span class="navbar-brand">📅 Scheduler</span>
+    <div class="navbar-links">
+      <a th:href="@{/appointments/calendar}">Calendar</a>
+      <a th:href="@{/appointments/groups}">Groups</a>
+      <a th:href="@{/appointments/my-slots}">My Slots</a>
+      <form th:action="@{/logout}" method="post">
+        <button type="submit" class="btn btn-ghost btn-sm">Logout</button>
+      </form>
+    </div>
+  </nav>
 
-<a th:href="@{/appointments/my-slots}" class="back">← Back to My Slots</a>
+  <div class="container" style="max-width:600px;">
+    <a th:href="@{/appointments/my-slots}" class="btn btn-ghost btn-sm" style="margin-bottom:20px;">← Back to My
+      Slots</a>
 
-<div class="card">
-    <h2 th:text="${group.groupName}"></h2>
-    <p>Created by: <strong th:text="${group.createdByUsername}"></strong></p>
-    <p>Total Members: <strong th:text="${group.memberList.size()}"></strong></p>
+    <div class="card">
+      <div style="display:flex; align-items:center; gap:16px; margin-bottom:20px;">
+        <div style="background:#1e3a5f; border-radius:50%; width:56px; height:56px;
+                        display:flex; align-items:center; justify-content:center; font-size:24px;">
+          👥
+        </div>
+        <div>
+          <h2 style="color:#60a5fa; font-size:22px;" th:text="${group.groupName}"></h2>
+          <p style="color:#64748b; font-size:13px;">
+            Created by <strong th:text="${group.createdByUsername}"></strong>
+          </p>
+        </div>
+      </div>
 
-    <h3>Members</h3>
-    <ul>
-        <li th:each="member : ${group.memberList}" th:text="${member}"></li>
-        <li th:if="${#lists.isEmpty(group.memberList)}" style="color:#aaa;">No members yet.</li>
-    </ul>
-</div>
+      <div class="stats-row" style="margin-bottom:20px;">
+        <div class="stat-card">
+          <div class="stat-number" th:text="${group.memberList.size()}">0</div>
+          <div class="stat-label">Members</div>
+        </div>
+      </div>
 
+      <h3>Members</h3>
+      <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:12px;">
+        <span th:each="member : ${group.memberList}" class="member-tag">
+          👤 <span th:text="${member}"></span>
+        </span>
+        <span th:if="${#lists.isEmpty(group.memberList)}" style="color:#475569; font-size:14px;">No members yet.</span>
+      </div>
+    </div>
+  </div>
 </body>
+
 </html>

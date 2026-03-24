@@ -2,56 +2,70 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>My Bookings</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 40px auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 10px;
-        }
-
-        th {
-            background: #008CBA;
-            color: white;
-        }
-    </style>
+    <title>My Bookings — Scheduler</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
 </head>
 
 <body>
-    <h1>My Booked Appointments</h1>
-    <a th:href="@{/appointments/calendar}">← Back to Calendar</a> | <form th:action="@{/logout}" method="post"
-        style="display:inline;">
-        <button type="submit"
-            style="background:none; border:none; color:blue; cursor:pointer; text-decoration:underline; padding:0;">
-            Logout
-        </button>
-    </form>
+    <nav class="navbar">
+        <span class="navbar-brand">📅 Scheduler</span>
+        <div class="navbar-links">
+            <a th:href="@{/appointments/calendar}">Calendar</a>
+            <a th:href="@{/appointments/groups}">Groups</a>
+            <a th:href="@{/appointments/my-bookings}">My Bookings</a>
+            <span class="navbar-user" sec:authentication="name"
+                xmlns:sec="http://www.thymeleaf.org/extras/spring-security"></span>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-ghost btn-sm">Logout</button>
+            </form>
+        </div>
+    </nav>
 
-    <br /><br />
-    <table>
-        <tr>
-            <th>Instructor</th>
-            <th>Time</th>
-        </tr>
-        <tr th:each="b : ${bookings}">
-            <td th:text="${b.instructorUsername}"></td>
-            <td th:text="${b.slotTime}"></td>
-        </tr>
-        <tr th:if="${#lists.isEmpty(bookings)}">
-            <td colspan="2">No bookings yet.</td>
-        </tr>
-    </table>
+    <div class="container">
+        <h2 style="margin-bottom:24px; color:#e2e8f0;">My Booked Appointments</h2>
+
+        <div th:if="${cancelError != null}" class="alert alert-error">
+            ⚠️ <span th:text="${cancelError}"></span>
+        </div>
+
+        <div class="card">
+            <h3>Upcoming Bookings</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Instructor</th>
+                            <th>Date & Time</th>
+                            <th>Duration</th>
+                            <th>Type</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="b : ${bookings}">
+                            <td th:text="${b.instructorUsername}"></td>
+                            <td th:text="${b.slotTime}"></td>
+                            <td th:text="${b.durationMinutes} + ' min'"></td>
+                            <td>
+                                <span th:if="${b.groupAppointment}" class="badge badge-blue">Group</span>
+                                <span th:unless="${b.groupAppointment}" class="badge badge-green">Individual</span>
+                            </td>
+                            <td>
+                                <form th:action="@{/appointments/cancel/student/{id}(id=${b.id})}" method="post">
+                                    <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(bookings)}">
+                            <td colspan="5" style="text-align:center; color:#64748b; padding:24px;">
+                                No bookings yet. Head to the calendar to book a slot.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

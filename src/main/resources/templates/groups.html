@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <title>Groups — Scheduler</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+
+<body>
+    <nav class="navbar">
+        <span class="navbar-brand">📅 Scheduler</span>
+        <div class="navbar-links">
+            <a th:href="@{/appointments/calendar}">Calendar</a>
+            <a th:href="@{/appointments/groups}">Groups</a>
+            <span class="navbar-user" sec:authentication="name"></span>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-ghost btn-sm">Logout</button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2 style="margin-bottom:24px; color:#e2e8f0;">Groups</h2>
+
+        <!-- Instructor only: Create Group -->
+        <div sec:authorize="hasRole('INSTRUCTOR')" class="card">
+            <h3>Create a New Group</h3>
+            <form th:action="@{/appointments/groups/create}" method="post"
+                style="display:flex; gap:12px; align-items:flex-end;">
+                <div class="form-group" style="flex:1; margin:0;">
+                    <label>Group Name</label>
+                    <input class="form-control" type="text" name="groupName" placeholder="Enter group name" required />
+                </div>
+                <button type="submit" class="btn btn-success">+ Create Group</button>
+            </form>
+        </div>
+
+        <!-- Groups Table -->
+        <div class="card">
+            <h3>All Groups</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Group Name</th>
+                            <th>Created By</th>
+                            <th>Members</th>
+                            <th sec:authorize="hasRole('STUDENT')">Action</th>
+                            <th sec:authorize="hasRole('INSTRUCTOR')">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="group : ${groups}">
+                            <td th:text="${group.groupName}"></td>
+                            <td th:text="${group.createdByUsername}"></td>
+                            <td>
+                                <span th:each="member : ${group.memberList}" class="member-tag"
+                                    th:text="${member}"></span>
+                                <span th:if="${#lists.isEmpty(group.memberList)}" style="color:#475569;">No
+                                    members</span>
+                            </td>
+                            <td sec:authorize="hasRole('STUDENT')">
+                                <form th:if="${#lists.contains(group.memberList, currentUser)}"
+                                    th:action="@{/appointments/groups/leave/{id}(id=${group.id})}" method="post">
+                                    <button type="submit" class="btn btn-danger btn-sm">Leave</button>
+                                </form>
+                                <form th:unless="${#lists.contains(group.memberList, currentUser)}"
+                                    th:action="@{/appointments/groups/join/{id}(id=${group.id})}" method="post">
+                                    <button type="submit" class="btn btn-success btn-sm">Join</button>
+                                </form>
+                            </td>
+                            <td sec:authorize="hasRole('INSTRUCTOR')">
+                                <a th:href="@{/appointments/groups/{id}(id=${group.id})}"
+                                    class="btn btn-primary btn-sm">View Members</a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(groups)}">
+                            <td colspan="4" style="text-align:center; color:#64748b; padding:24px;">
+                                No groups yet.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
